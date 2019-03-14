@@ -19,8 +19,11 @@ static void set_ok(s_json_err_t *rc) {
   }
 }
 
+#ifdef check
+#undef check
+#endif
 #define check(A, B, C)                                                         \
-  if (!A) {                                                                    \
+  if (!(A)) {                                                                  \
     if (rc) {                                                                  \
       *rc = B;                                                                 \
     }                                                                          \
@@ -45,14 +48,14 @@ static void j_cleanup(s_json_t *json) {
 s_json_t *s_json_init(const char *json_string, size_t json_string_len,
                       s_json_err_t *rc) {
 
-  s_json_err_t rc;
   s_json_t *json;
-  s_json_t *tmp;
+  jsmntok_t *tmp;
 
   check(json_string, S_JSON_ERR_PARSE, final_cleanup);
   json = malloc(sizeof(struct s_json));
   check(json, S_JSON_ERR_NO_MEM, final_cleanup);
-  jsmn_init(json->parser);
+  jsmn_init(&json->parser);
+  json->json_string = json_string;
   json->tokens_max = 100;
   json->tokens = NULL;
   json->tokens_c = JSMN_ERROR_NOMEM;
@@ -62,7 +65,7 @@ s_json_t *s_json_init(const char *json_string, size_t json_string_len,
     check(tmp, S_JSON_ERR_NO_MEM, json_cleanup);
     json->tokens = tmp;
     json->tokens_c =
-        jsmn_parse(&(json->parser), json->json_string, json->json_string_len,
+        jsmn_parse(&json->parser, json->json_string, json_string_len,
                    json->tokens, json->tokens_max);
   }
   check(json->tokens_c > 0, S_JSON_ERR_PARSE, json_cleanup);
@@ -163,8 +166,8 @@ char *s_json_string(s_json_t *json, const char *json_path, s_json_err_t *rc) {
 
   check_json();
 
-  str = s_json_string_raw(json, json_path, &len, rc);
-  check(rc == S_JSON_OK, rc, final_cleanup);
+  *rc = s_json_string_raw(&str, &len, json, json_path);
+  check(rc == S_JSON_OK, *rc, final_cleanup);
   res = malloc((len + 1) * sizeof(char));
   check(res, S_JSON_ERR_NO_MEM, final_cleanup);
   (void)strncpy(res, str, len);
@@ -176,28 +179,31 @@ final_cleanup:
   return NULL;
 }
 
-const char *s_json_string_raw(s_json_t *json, const char *json_path,
-                              int *string_raw_length, s_json_err_t *rc) {
+s_json_err_t s_json_string_raw(const char **string_raw, int *string_raw_length,
+                               s_json_t *json, const char *json_path) {
 
+  s_json_err_t *rc;
+  s_json_err_t rc_backing_store;
   int i;
   int len;
 
+  rc = &rc_backing_store;
   check_json();
   i = jjp_jsonpath_first(json->json_string, json->tokens, json->tokens_c,
-                         jsonpath, 0);
-  check(i >= 0 && tokens[i].type == JSMN_STRING, S_JSON_NOT_FOUND,
+                         json_path, 0);
+  check(i >= 0 && json->tokens[i].type == JSMN_STRING, S_JSON_NOT_FOUND,
         final_cleanup);
-  len = tokens[i].end - tokens[i].start;
+  len = json->tokens[i].end - json->tokens[i].start;
   check(len >= 0, S_JSON_ERR_INTERNAL, final_cleanup);
-  *string_raw_length = len;
   set_ok(rc);
-  return json + tokens[i].start;
+  *string_raw_length = len;
+  *string_raw = json->json_string + json->tokens[i].start;
+  return *rc;
 
 final_cleanup:
+  *string_raw = NULL;
   *string_raw_length = 0;
-  return NULL;
+  return *rc;
 }
 
 void s_json_cleanup(s_json_t *json) { j_cleanup(json); }
-
-#endif

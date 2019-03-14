@@ -81,17 +81,21 @@ char *s_json_string(s_json_t *json, const char *json_path, s_json_err_t *rc);
 /**
  * See s_json_int()
  *
+ * \param[out] string_raw NON '\0' terminated string!!! You have to use the
+ * string_raw_length parameter to find the end of the string. The string is not
+ * malloc()-ed as it still uses the original json_string you passed into the
+ * s_json_init() function for the backing memory storage. So it is only valid as
+ * long as json_string is valid!!!
+ *
  * \param[out] string_raw_length The length of the returned NON '\0' terminated
  * string.
  *
- * \return a NON '\0' terminated string!!! You have to use the string_raw_length
- * parameter to find the end of the string. The string is not malloc()-ed as it
- * still uses the original json_string you passed into the s_json_init()
- * function for the backing memory storage. So it is only valid as long as
- * json_string is valid!!!
+ * \return S_JSON_OK on success or error otherwise. See A list of errors.
+ * When an error is returned the string_raw pointer is set to NULL
+ * and the string_raw_length is set to 0.
  */
-const char *s_json_string_raw(s_json_t *json, const char *json_path,
-                              int *string_raw_length, s_json_err_t *rc);
+s_json_err_t s_json_string_raw(const char **string_raw, int *string_raw_length,
+                               s_json_t *json, const char *json_path);
 
 /**
  * Cleanup the memory resources associated with the given opaque s_json_t
