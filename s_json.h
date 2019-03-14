@@ -10,8 +10,8 @@ typedef enum {
   S_JSON_ERR_NO_MEM,  /* malloc() failed */
   S_JSON_ERR_PARSE,   /* Invalid JSON */
   S_JSON_ERR_IS_NULL, /* The passed s_json_t object is NULL */
-  S_JSON_INTERNAL     /* This shouldn't occur.
-                         If it does please file a bug report.  */
+  S_JSON_ERR_INTERNAL /* This shouldn't occur.
+                     If it does please file a bug report.  */
 } s_json_err_t;
 
 /**
@@ -27,12 +27,15 @@ typedef struct s_json s_json_t;
  * \param[in]  json_string The json string to parse. It is not copied to new
  * memory, so it has to exist at least as long as the s_json_t object exists.
  *
+ * \param[in] json_string_len The length of the json string.
+ *
  * \param[out] rc Used for error handling. Can be NULL. See A list of errors.
  *
  * \return NULL on error a valid s_json_t pointer otherwise. For better error
  * handling user the rc parameter.
  */
-s_json_t *s_json_init(const char *json_string, s_json_err_t *rc);
+s_json_t *s_json_init(const char *json_string, size_t json_string_len,
+                      s_json_err_t *rc);
 
 /**
  * \param[in]  json A valid/initialized s_json_t object.
@@ -65,7 +68,7 @@ float s_json_float(s_json_t *json, const char *json_path, s_json_err_t *rc);
  * Parse true/false to (int)1/(int)0
  * See s_json_int()
  */
-float s_json_boolean(s_json_t *json, const char *json_path, s_json_err_t *rc);
+int s_json_boolean(s_json_t *json, const char *json_path, s_json_err_t *rc);
 
 /**
  * See s_json_int()
@@ -88,7 +91,7 @@ char *s_json_string(s_json_t *json, const char *json_path, s_json_err_t *rc);
  * json_string is valid!!!
  */
 const char *s_json_string_raw(s_json_t *json, const char *json_path,
-                              int string_raw_length, s_json_err_t *rc);
+                              int *string_raw_length, s_json_err_t *rc);
 
 /**
  * Cleanup the memory resources associated with the given opaque s_json_t
