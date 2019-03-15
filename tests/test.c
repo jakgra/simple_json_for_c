@@ -18,11 +18,11 @@ int main() {
   json = s_json_init(json_str, strlen(json_str), &rc);
   check(json && rc == S_JSON_OK, final_cleanup);
 
-  rc = s_json_string_raw(&res, &res_len, json, "$.pills[0].color");
+  s_json_string_raw(&res, &res_len, json, "$.pills[0].color", &rc);
   check(rc == S_JSON_OK && res, final_cleanup);
   printf("If you take the %.*s pill,", res_len, res);
 
-  rc = s_json_string_raw(&res, &res_len, json, "$.pills[0].action");
+  s_json_string_raw(&res, &res_len, json, "$.pills[0].action", &rc);
   check(rc == S_JSON_OK && res, final_cleanup);
   printf(" you may as well just %.*s your life away.\n", res_len, res);
 
