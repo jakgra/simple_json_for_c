@@ -90,12 +90,12 @@ char *s_json_string(s_json_t *json, const char *json_path, s_json_err_t *rc);
  * \param[out] string_raw_length The length of the returned NON '\0' terminated
  * string.
  *
- * \return S_JSON_OK on success or error otherwise. See A list of errors.
- * When an error is returned the string_raw pointer is set to NULL
- * and the string_raw_length is set to 0.
+ * When an error happens the string_raw pointer is set to NULL
+ * and the string_raw_length is set to 0 and rc (if you didn't pass NULL to it)
+ * contains the specific error code.
  */
-s_json_err_t s_json_string_raw(const char **string_raw, int *string_raw_length,
-                               s_json_t *json, const char *json_path);
+void s_json_string_raw(const char **string_raw, int *string_raw_length,
+                       s_json_t *json, const char *json_path, s_json_err_t *rc);
 
 /**
  * Cleanup the memory resources associated with the given opaque s_json_t

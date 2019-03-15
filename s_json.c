@@ -179,15 +179,13 @@ final_cleanup:
   return NULL;
 }
 
-s_json_err_t s_json_string_raw(const char **string_raw, int *string_raw_length,
-                               s_json_t *json, const char *json_path) {
+void s_json_string_raw(const char **string_raw, int *string_raw_length,
+                       s_json_t *json, const char *json_path,
+                       s_json_err_t *rc) {
 
-  s_json_err_t *rc;
-  s_json_err_t rc_backing_store;
   int i;
   int len;
 
-  rc = &rc_backing_store;
   check_json();
   i = jjp_jsonpath_first(json->json_string, json->tokens, json->tokens_c,
                          json_path, 0);
@@ -198,12 +196,12 @@ s_json_err_t s_json_string_raw(const char **string_raw, int *string_raw_length,
   set_ok(rc);
   *string_raw_length = len;
   *string_raw = json->json_string + json->tokens[i].start;
-  return *rc;
+  return;
 
 final_cleanup:
   *string_raw = NULL;
   *string_raw_length = 0;
-  return *rc;
+  return;
 }
 
 void s_json_cleanup(s_json_t *json) { j_cleanup(json); }
