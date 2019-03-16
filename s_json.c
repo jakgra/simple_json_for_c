@@ -1,3 +1,4 @@
+#include <jak_dbg.h>
 #include <jjp_wrap.h>
 #include <jsmn.h>
 #include <jsonpath.h>
@@ -30,10 +31,11 @@ static void set_ok(s_json_err_t *rc) {
     goto C;                                                                    \
   }
 
-#define check_json()                                                           \
+#define check_input_params()                                                   \
   {                                                                            \
-    check(json, S_JSON_ERR_IS_NULL, final_cleanup);                            \
+    check(json, S_JSON_ERR_WRONG_JSON, final_cleanup);                         \
     check(json->tokens_c > 0, S_JSON_ERR_INTERNAL, final_cleanup);             \
+    check(json, S_JSON_ERR_WRONG_ROOT, final_cleanup);                         \
   }
 
 static void j_cleanup(s_json_t *json) {
@@ -78,14 +80,15 @@ final_cleanup:
   return NULL;
 }
 
-int s_json_int(s_json_t *json, const char *json_path, s_json_err_t *rc) {
+int s_json_int(s_json_t *json, const char *json_path, int root_object_index,
+               s_json_err_t *rc) {
 
   int rc2;
   int res;
 
-  check_json();
-  res = jjp_int(json->json_string, json->tokens, json->tokens_c, json_path, 0,
-                &rc2);
+  check_input_params();
+  res = jjp_int(json->json_string, json->tokens, json->tokens_c, json_path,
+                root_object_index, &rc2);
   check(rc2 == 0, S_JSON_NOT_FOUND, final_cleanup);
   set_ok(rc);
   return res;
@@ -94,14 +97,15 @@ final_cleanup:
   return 0;
 }
 
-long s_json_long(s_json_t *json, const char *json_path, s_json_err_t *rc) {
+long s_json_long(s_json_t *json, const char *json_path, int root_object_index,
+                 s_json_err_t *rc) {
 
   int rc2;
   long res;
 
-  check_json();
-  res = jjp_long(json->json_string, json->tokens, json->tokens_c, json_path, 0,
-                 &rc2);
+  check_input_params();
+  res = jjp_long(json->json_string, json->tokens, json->tokens_c, json_path,
+                 root_object_index, &rc2);
   check(rc2 == 0, S_JSON_NOT_FOUND, final_cleanup);
   set_ok(rc);
   return res;
@@ -110,14 +114,15 @@ final_cleanup:
   return 0L;
 }
 
-double s_json_double(s_json_t *json, const char *json_path, s_json_err_t *rc) {
+double s_json_double(s_json_t *json, const char *json_path,
+                     int root_object_index, s_json_err_t *rc) {
 
   int rc2;
   double res;
 
-  check_json();
+  check_input_params();
   res = jjp_double(json->json_string, json->tokens, json->tokens_c, json_path,
-                   0, &rc2);
+                   root_object_index, &rc2);
   check(rc2 == 0, S_JSON_NOT_FOUND, final_cleanup);
   set_ok(rc);
   return res;
@@ -126,14 +131,15 @@ final_cleanup:
   return 0.0;
 }
 
-float s_json_float(s_json_t *json, const char *json_path, s_json_err_t *rc) {
+float s_json_float(s_json_t *json, const char *json_path, int root_object_index,
+                   s_json_err_t *rc) {
 
   int rc2;
   float res;
 
-  check_json();
-  res = jjp_float(json->json_string, json->tokens, json->tokens_c, json_path, 0,
-                  &rc2);
+  check_input_params();
+  res = jjp_float(json->json_string, json->tokens, json->tokens_c, json_path,
+                  root_object_index, &rc2);
   check(rc2 == 0, S_JSON_NOT_FOUND, final_cleanup);
   set_ok(rc);
   return res;
@@ -142,14 +148,15 @@ final_cleanup:
   return 0.0f;
 }
 
-int s_json_boolean(s_json_t *json, const char *json_path, s_json_err_t *rc) {
+int s_json_boolean(s_json_t *json, const char *json_path, int root_object_index,
+                   s_json_err_t *rc) {
 
   int rc2;
   int res;
 
-  check_json();
+  check_input_params();
   res = jjp_boolean(json->json_string, json->tokens, json->tokens_c, json_path,
-                    0, &rc2);
+                    root_object_index, &rc2);
   check(rc2 == 0, S_JSON_NOT_FOUND, final_cleanup);
   set_ok(rc);
   return res;
@@ -158,15 +165,16 @@ final_cleanup:
   return 0.0f;
 }
 
-char *s_json_string(s_json_t *json, const char *json_path, s_json_err_t *rc) {
+char *s_json_string(s_json_t *json, const char *json_path,
+                    int root_object_index, s_json_err_t *rc) {
 
   const char *str;
   char *res;
   int len;
 
-  check_json();
+  check_input_params();
 
-  s_json_string_raw(&str, &len, json, json_path, rc);
+  s_json_string_raw(&str, &len, json, json_path, root_object_index, rc);
   check(rc == S_JSON_OK, *rc, final_cleanup);
   res = malloc((len + 1) * sizeof(char));
   check(res, S_JSON_ERR_NO_MEM, final_cleanup);
@@ -181,14 +189,14 @@ final_cleanup:
 
 void s_json_string_raw(const char **string_raw, int *string_raw_length,
                        s_json_t *json, const char *json_path,
-                       s_json_err_t *rc) {
+                       int root_object_index, s_json_err_t *rc) {
 
   int i;
   int len;
 
-  check_json();
+  check_input_params();
   i = jjp_jsonpath_first(json->json_string, json->tokens, json->tokens_c,
-                         json_path, 0);
+                         json_path, root_object_index);
   check(i >= 0 && json->tokens[i].type == JSMN_STRING, S_JSON_NOT_FOUND,
         final_cleanup);
   len = json->tokens[i].end - json->tokens[i].start;
@@ -202,6 +210,22 @@ final_cleanup:
   *string_raw = NULL;
   *string_raw_length = 0;
   return;
+}
+
+int s_json_object(s_json_t *json, const char *json_path, int root_object_index,
+                  s_json_err_t *rc) {
+
+  int index;
+
+  check_input_params();
+  index = jjp_jsonpath_first(json->json_string, json->tokens, json->tokens_c,
+                             json_path, root_object_index);
+  check(index >= 0, S_JSON_NOT_FOUND, final_cleanup);
+  set_ok(rc);
+  return index;
+
+final_cleanup:
+  return 0;
 }
 
 void s_json_cleanup(s_json_t *json) { j_cleanup(json); }

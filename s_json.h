@@ -6,12 +6,13 @@
  */
 typedef enum {
   S_JSON_OK = 0,
-  S_JSON_NOT_FOUND,   /* No results found */
-  S_JSON_ERR_NO_MEM,  /* malloc() failed */
-  S_JSON_ERR_PARSE,   /* Invalid JSON */
-  S_JSON_ERR_IS_NULL, /* The passed s_json_t object is NULL */
-  S_JSON_ERR_INTERNAL /* This shouldn't occur.
-                     If it does please file a bug report.  */
+  S_JSON_NOT_FOUND,      /* No results found */
+  S_JSON_ERR_NO_MEM,     /* malloc() failed */
+  S_JSON_ERR_PARSE,      /* Invalid JSON */
+  S_JSON_ERR_WRONG_JSON, /* The passed s_json_t object is NULL */
+  S_JSON_ERR_WRONG_ROOT, /* The passed root_object_index is less than 0 */
+  S_JSON_ERR_INTERNAL    /* This shouldn't occur.
+                        If it does please file a bug report.  */
 } s_json_err_t;
 
 /**
@@ -40,35 +41,45 @@ s_json_t *s_json_init(const char *json_string, size_t json_string_len,
 /**
  * \param[in]  json A valid/initialized s_json_t object.
  *
- * \param[in] rc Used for error handling. Can be NULL. See A list of errors.
+ * \param[in] json_path The path of
+ *
+ * \param[in] root_object_index Set this to 0 if you wan't to search the whole
+ * document. If you wan't to search just part of it (inside an object or array)
+ * then use the s_json_object() function to get the index of the object/array to
+ * search inside of.
  *
  * \param[out] rc Used for error handling. Can be NULL. See A list of errors.
  *
  * \return 0 on error or the first integer found in json otherwise. For better
  * error handling user the rc parameter.
  */
-int s_json_int(s_json_t *json, const char *json_path, s_json_err_t *rc);
+int s_json_int(s_json_t *json, const char *json_path, int root_object_index,
+               s_json_err_t *rc);
 
 /**
  * See s_json_int()
  */
-long s_json_long(s_json_t *json, const char *json_path, s_json_err_t *rc);
+long s_json_long(s_json_t *json, const char *json_path, int root_object_index,
+                 s_json_err_t *rc);
 
 /**
  * See s_json_int()
  */
-double s_json_double(s_json_t *json, const char *json_path, s_json_err_t *rc);
+double s_json_double(s_json_t *json, const char *json_path,
+                     int root_object_index, s_json_err_t *rc);
 
 /**
  * See s_json_int()
  */
-float s_json_float(s_json_t *json, const char *json_path, s_json_err_t *rc);
+float s_json_float(s_json_t *json, const char *json_path, int root_object_index,
+                   s_json_err_t *rc);
 
 /**
  * Parse true/false to (int)1/(int)0
  * See s_json_int()
  */
-int s_json_boolean(s_json_t *json, const char *json_path, s_json_err_t *rc);
+int s_json_boolean(s_json_t *json, const char *json_path, int root_object_index,
+                   s_json_err_t *rc);
 
 /**
  * See s_json_int()
@@ -76,7 +87,8 @@ int s_json_boolean(s_json_t *json, const char *json_path, s_json_err_t *rc);
  * \return a '\0' terminated C string that it allocated via malloc() or NULL on
  * error. It's your responsibility to free it!
  */
-char *s_json_string(s_json_t *json, const char *json_path, s_json_err_t *rc);
+char *s_json_string(s_json_t *json, const char *json_path,
+                    int root_object_index, s_json_err_t *rc);
 
 /**
  * See s_json_int()
@@ -95,7 +107,19 @@ char *s_json_string(s_json_t *json, const char *json_path, s_json_err_t *rc);
  * contains the specific error code.
  */
 void s_json_string_raw(const char **string_raw, int *string_raw_length,
-                       s_json_t *json, const char *json_path, s_json_err_t *rc);
+                       s_json_t *json, const char *json_path,
+                       int root_object_index, s_json_err_t *rc);
+
+/**
+ * See s_json_int()
+ *
+ * \return 0 on error or the object index of the first object found in json
+ * otherwise. You can use the returned object index in subsequent calls to
+ * s_json_*() functions to limit your queries to this object. This allows for
+ * less code and better performance.
+ */
+int s_json_object(s_json_t *json, const char *json_path, int root_object_index,
+                  s_json_err_t *rc);
 
 /**
  * Cleanup the memory resources associated with the given opaque s_json_t
