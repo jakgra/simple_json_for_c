@@ -116,7 +116,7 @@ char *s_json_string(s_json_t *json, const char *json_path,
  * and the string_raw_length is set to 0 and rc (if you didn't pass NULL to it)
  * contains the specific error code.
  */
-void s_json_string_raw(const char **string_raw, int *string_raw_length,
+void s_json_string_raw(const char **string_raw, size_t *string_raw_length,
                        s_json_t *json, const char *json_path,
                        int root_object_index, s_json_err_t *rc);
 

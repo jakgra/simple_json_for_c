@@ -169,7 +169,7 @@ char *s_json_string(s_json_t *json, const char *json_path,
 
   const char *str;
   char *res;
-  int len;
+  size_t len;
 
   check_input_params();
 
@@ -186,7 +186,7 @@ final_cleanup:
   return NULL;
 }
 
-void s_json_string_raw(const char **string_raw, int *string_raw_length,
+void s_json_string_raw(const char **string_raw, size_t *string_raw_length,
                        s_json_t *json, const char *json_path,
                        int root_object_index, s_json_err_t *rc) {
 
