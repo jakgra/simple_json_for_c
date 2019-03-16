@@ -1,0 +1,7 @@
+# Doxyfile 1.8.11
+
+PROJECT_NAME = "Simple JSON for C"
+OUTPUT_DIRECTORY = "./"
+INPUT = ../README.md ../s_json.h
+USE_MDFILE_AS_MAINPAGE = README.md
+GENERATE_MAN = YES

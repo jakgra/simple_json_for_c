@@ -1,17 +1,25 @@
 #ifndef s_json_h__
 #define s_json_h__
 
+#include <stddef.h>
+
 /**
- * A list of errors.
+ * @file
+ * @brief Simple JSON for C
+ */
+
+/**
+ * A Simple JSON error.
  */
 typedef enum {
-  S_JSON_OK = 0,
-  S_JSON_NOT_FOUND,      /* No results found */
-  S_JSON_ERR_NO_MEM,     /* malloc() failed */
-  S_JSON_ERR_PARSE,      /* Invalid JSON */
-  S_JSON_ERR_WRONG_JSON, /* The passed s_json_t object is NULL */
-  S_JSON_ERR_WRONG_ROOT, /* The passed root_object_index is less than 0 */
-  S_JSON_ERR_INTERNAL    /* This shouldn't occur.
+  S_JSON_OK = 0,     /**< No error. Everything was successful */
+  S_JSON_NOT_FOUND,  /**< No results for the given jsonpath found in the JSON
+                        document */
+  S_JSON_ERR_NO_MEM, /**< malloc() failed */
+  S_JSON_ERR_PARSE,  /**< Invalid JSON */
+  S_JSON_ERR_WRONG_JSON, /**< The passed s_json_t object is NULL */
+  S_JSON_ERR_WRONG_ROOT, /**< The passed root_object_index is less than 0 */
+  S_JSON_ERR_INTERNAL    /**< This shouldn't occur.
                         If it does please file a bug report.  */
 } s_json_err_t;
 
@@ -30,7 +38,8 @@ typedef struct s_json s_json_t;
  *
  * \param[in] json_string_len The length of the json string.
  *
- * \param[out] rc Used for error handling. Can be NULL. See A list of errors.
+ * \param[out] rc Used for error handling. Can be NULL. See \ref s_json_err_t
+ * for a list of possible errors.
  *
  * \return NULL on error a valid s_json_t pointer otherwise. For better error
  * handling user the rc parameter.
@@ -48,7 +57,8 @@ s_json_t *s_json_init(const char *json_string, size_t json_string_len,
  * then use the s_json_object() function to get the index of the object/array to
  * search inside of.
  *
- * \param[out] rc Used for error handling. Can be NULL. See A list of errors.
+ * \param[out] rc Used for error handling. Can be NULL. See \ref s_json_err_t
+ * for a list of possible errors.
  *
  * \return 0 on error or the first integer found in json otherwise. For better
  * error handling user the rc parameter.
@@ -96,8 +106,8 @@ char *s_json_string(s_json_t *json, const char *json_path,
  * \param[out] string_raw NON '\0' terminated string!!! You have to use the
  * string_raw_length parameter to find the end of the string. The string is not
  * malloc()-ed as it still uses the original json_string you passed into the
- * s_json_init() function for the backing memory storage. So it is only valid as
- * long as json_string is valid!!!
+ * s_json_init() function for the backing memory storage. So
+ * it is only valid as long as json_string is valid!!! Do not free() it.!!!
  *
  * \param[out] string_raw_length The length of the returned NON '\0' terminated
  * string.
