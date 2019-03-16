@@ -38,7 +38,10 @@ int main() {
   check(rc == S_JSON_OK && res, final_cleanup);
   printf(" you may as well just %.*s.\n", res_len, res);
 
+  s_json_cleanup(json);
+
   return 0;
 final_cleanup:
+  s_json_cleanup(json);
   return -1;
 }
