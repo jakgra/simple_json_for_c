@@ -11,7 +11,7 @@ It is very simple. If this is the `main.c` file:
 const char *json_str = "{ \"message\": \"Hello world.\", \"a_number\": 7 }";
 
 int main() {
-  s_json *json;
+  s_json_t *json;
 
   json = s_json_init(json_str, strlen(json_str), NULL);
   printf(
