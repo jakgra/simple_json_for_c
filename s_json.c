@@ -174,7 +174,7 @@ char *s_json_string(s_json_t *json, const char *json_path,
   check_input_params();
 
   s_json_string_raw(&str, &len, json, json_path, root_object_index, rc);
-  check(rc == S_JSON_OK, *rc, final_cleanup);
+  check(*rc == S_JSON_OK, *rc, final_cleanup);
   res = malloc((len + 1) * sizeof(char));
   check(res, S_JSON_ERR_NO_MEM, final_cleanup);
   (void)strncpy(res, str, len);
