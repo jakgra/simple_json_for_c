@@ -4,3 +4,6 @@ toolbox
 #git clone https://github.com/jakgra/toolbox.git
 jsmn
 #git clone https://github.com/zserge/jsmn.git
+# cd jsmn
+# git checkout v1.0.0
+# cd ..

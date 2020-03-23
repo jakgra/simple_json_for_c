@@ -26,7 +26,7 @@ int main() {
 Build an run it:  
 ```bash
 git clone https://github.com/jakgra/simple_json_for_c.git
-git clone https://github.com/zserge/jsmn.git
+git clone https://github.com/zserge/jsmn.git && cd jsmn && git checkout v1.0.0 && cd ..
 git clone https://github.com/jakgra/jsmn-jsonpath.git
 cc -Isimple_json_for_c -Ijsmn -Ijsmn-jsonpath -DJSMN_PARENT_LINKS -o main main.c jsmn/jsmn.c jsmn-jsonpath/jsonpath.c jsmn-jsonpath/jjp_wrap.c simple_json_for_c/s_json.c
 ./main
