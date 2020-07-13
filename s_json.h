@@ -1,6 +1,7 @@
 #ifndef s_json_h__
 #define s_json_h__
 
+#include <jsonpath.h>
 #include <stddef.h>
 
 /**
@@ -130,6 +131,15 @@ void s_json_string_raw(const char **string_raw, size_t *string_raw_length,
  */
 int s_json_object(s_json_t *json, const char *json_path, int root_object_index,
                   s_json_err_t *rc);
+
+/**
+ * See s_json_int()
+ *
+ * \return NULL on error or a jjp_result_t object of matched entries.
+ * You have to call jjp_result_destroy(result); after you finish using it.
+ */
+jjp_result_t *s_json_array_object(s_json_t *json, const char *json_path,
+                                  int root_object_index, s_json_err_t *rc);
 
 /**
  * Cleanup the memory resources associated with the given opaque s_json_t

@@ -227,4 +227,19 @@ final_cleanup:
   return 0;
 }
 
+jjp_result_t *s_json_array_object(s_json_t *json, const char *json_path,
+                                  int root_object_index, s_json_err_t *rc) {
+
+  jjp_result_t *res;
+
+  res = jjp_jsonpath(json->json_string, json->tokens, json->tokens_c, json_path,
+                     root_object_index);
+  check(res, S_JSON_NOT_FOUND, final_cleanup);
+  set_ok(rc);
+  return res;
+
+final_cleanup:
+  return NULL;
+}
+
 void s_json_cleanup(s_json_t *json) { j_cleanup(json); }

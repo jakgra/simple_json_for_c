@@ -15,6 +15,7 @@ int main() {
   const char *res;
   size_t res_len;
   int obj;
+  jjp_result_t *pills;
 
   json = s_json_init(json_str, strlen(json_str), &rc);
   check(json && rc == S_JSON_OK, final_cleanup);
@@ -37,6 +38,10 @@ int main() {
   s_json_string_raw(&res, &res_len, json, "@.action", obj, &rc);
   check(rc == S_JSON_OK && res, final_cleanup);
   printf(" you may as well just %.*s.\n", (int)res_len, res);
+
+  pills = s_json_array_object(json, "$.pills[*]", 0, &rc);
+  check(pills && pills->count == 2, final_cleanup);
+  jjp_result_destroy(pills);
 
   s_json_cleanup(json);
 
